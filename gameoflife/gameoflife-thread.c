@@ -97,7 +97,8 @@ void *calcNextGen(void *tid){
 }
 
 int main(){
-    int i, j, life, th;
+    int i, j, life, th, tmili;
+    struct timeval start, end;
     srand(SRAND_VALUE);
     pthread_t t[MAX_THREADS];
 
@@ -120,7 +121,9 @@ int main(){
             }
         }
     }
-    
+    quantVivos(grid, 0);
+
+    gettimeofday(&start, NULL);
     swapValues(newgrid, grid);
     while(gen < MAX_GEN){
         for (th=0; th<MAX_THREADS; th++) pthread_create(&t[th], NULL, calcNextGen, (void *) th);
@@ -129,6 +132,10 @@ int main(){
         else swapValues(newgrid, grid);
         gen += 1;
     }
+    gettimeofday(&end, NULL);
+    tmili = (int) (1000*(end.tv_sec-start.tv_sec)+(end.tv_usec-start.tv_usec)/1000);
+    printf("%d ms\n", tmili);
+
     quantVivos(grid, gen);
     free(grid);
     free(newgrid);
