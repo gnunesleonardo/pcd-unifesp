@@ -2,8 +2,8 @@
 #include <stdlib.h>
 
 #define SRAND_VALUE 1985
-#define MAXGRID 500
-#define MAXGEN 10
+#define MAXGRID 2048
+#define MAXGEN 200
 int MAXREAL = MAXGRID+2;
 
 int getNeighbors(int** grid, int i, int j){

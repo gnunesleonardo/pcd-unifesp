@@ -5,9 +5,9 @@
 #include <sys/time.h>
 
 #define SRAND_VALUE 1985
-#define MAXGRID 500
-#define MAXGEN 4
-#define MAXTHREADS 8
+#define MAXGRID 2048
+#define MAXGEN 2000
+#define MAXTHREADS 4
 int MAXREAL = MAXGRID+2;
 
 int getNeighbors(int** grid, int i, int j){
@@ -103,29 +103,25 @@ int main(){
         else quantVivos(newgrid, gen);
         #pragma omp parallel \
             num_threads(MAXTHREADS) \
-            firstprivate(start, columns) \
             private(i, j, th_id, neighbors) \
             shared(grid, newgrid, control)
         {
             th_id = omp_get_thread_num();
             #pragma omp for
             for(i=1; i<=MAXGRID; i++) {
-                if (start == -1) start = i;
                 for (j=1; j<=MAXGRID; j++){
-                    if (i == start) columns += 1;
                     if (control == 0){
                         neighbors = getNeighbors(grid, i, j);
                         newgrid[i][j] = lifeOrDeath(grid[i][j], neighbors);
-                        swapValues(grid, newgrid);
                     } else {
                         neighbors = getNeighbors(newgrid, i, j);
                         grid[i][j] = lifeOrDeath(newgrid[i][j], neighbors);
-                        swapValues(newgrid, grid);
                     }
                 }
             }
-            if (gen == 0) printf("thread[%d] -> start=%d | total columns=%d\n", th_id, start, columns);
         }
+        if (control == 0) swapValues(grid, newgrid);
+        else swapValues(newgrid, grid);
         gen += 1;
     }
     gettimeofday(&t_final, NULL);
